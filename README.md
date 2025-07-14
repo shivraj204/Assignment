@@ -38,5 +38,5 @@
 - Python 3.11, Django, DRF, PostgreSQL, Docker
 
 ## Recording Links
-- project-features: <your-link-here>
-- project-technical: <your-link-here>
+- project-features:https://drive.google.com/file/d/1_xskzPAZBHlzWFNwfXO72czeVDNpHS-R/view?usp=sharing
+- project-technical:https://drive.google.com/file/d/1_xskzPAZBHlzWFNwfXO72czeVDNpHS-R/view?usp=sharing
