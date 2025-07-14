@@ -1,0 +1,133 @@
+
+
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>Gemini AI Assistant</h2>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <!-- Messages will appear here -->
+    </div>
+    <div class="chat-input">
+        <input type="text" id="user-message" placeholder="Ask me anything about music...">
+        <button id="send-button">Send</button>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #181818;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .chat-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .chat-messages {
+        height: 500px;
+        overflow-y: auto;
+        border: 1px solid #333;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        background-color: #282828;
+    }
+    
+    .chat-input {
+        display: flex;
+    }
+    
+    #user-message {
+        flex-grow: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #333;
+        color: white;
+    }
+    
+    #send-button {
+        padding: 10px 20px;
+        margin-left: 10px;
+        background-color: #1DB954;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .message {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 18px;
+        max-width: 70%;
+    }
+    
+    .user-message {
+        background-color: #1DB954;
+        margin-left: auto;
+    }
+    
+    .bot-message {
+        background-color: #535353;
+        margin-right: auto;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageInput = document.getElementById('user-message');
+        const sendButton = document.getElementById('send-button');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        function addMessage(message, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        sendButton.addEventListener('click', function() {
+            const message = messageInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                messageInput.value = '';
+                
+                // Send to server
+                fetch("{% url 'gemini:send_message' sid=sid %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: `message=${encodeURIComponent(message)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addMessage(data.message, false);
+                    } else {
+                        addMessage("Error: " + data.message, false);
+                    }
+                })
+                .catch(error => {
+                    addMessage("Error connecting to the AI assistant.", false);
+                });
+            }
+        });
+        
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+    });
+</script>
